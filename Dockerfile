@@ -1,24 +1,29 @@
-FROM buildkite/puppeteer
+FROM zenika/alpine-chrome:with-node
 
-RUN apt-get update \
-     && apt-get install -y git
+USER root
+RUN apk add --no-cache python3 py3-pip
 
-RUN npm install 'gildas-lormeau/SingleFile#master'
+RUN npm install --production single-file-cli
 
-WORKDIR /opt/app
-
-RUN apt-get update && apt-get install --no-install-recommends -y \
-      python3 python3-pip python3-setuptools
+WORKDIR /usr/src/app/node_modules/single-file-cli
 
 COPY requirements.txt .
+RUN pip install \ 
+  --no-cache-dir \ 
+  --no-warn-script-location \
+  --user \
+  --break-system-packages \
+  -r requirements.txt \
+  && rm requirements.txt
+
 COPY webserver.py .
 
-RUN pip3 install \
-    --no-cache-dir \
-    --no-warn-script-location \
-    --user \
-    -r requirements.txt
+EXPOSE 80
 
-RUN rm requirements.txt
-
-ENTRYPOINT ["/node_modules/single-file/cli/single-file", "--browser-executable-path=/opt/google/chrome/google-chrome", "--browser-args='[\"--no-sandbox\"]'", "--dump-content"]
+ENTRYPOINT [ \
+    "node", \
+    "./single-file", \
+    "--browser-executable-path", "/usr/bin/chromium-browser", \
+    "--output-directory", "./../../out/", \
+    "--browser-args", "[\"--no-sandbox\"]", \
+    "--dump-content" ]

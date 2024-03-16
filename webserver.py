@@ -3,8 +3,8 @@ from flask import Flask, request, Response
 
 server = Flask(__name__)
 
-SINGLEFILE_EXECUTABLE = '/node_modules/single-file/cli/single-file'
-BROWSER_PATH = '/opt/google/chrome/google-chrome'
+SINGLEFILE_EXECUTABLE = './single-file'
+BROWSER_PATH = '/usr/bin/chromium-browser'
 BROWSER_ARGS = '["--no-sandbox"]'
 
 
@@ -13,6 +13,7 @@ def singlefile():
     url = request.form.get('url')
     if url:
         p = subprocess.Popen([
+            "node",
             SINGLEFILE_EXECUTABLE,
             '--browser-executable-path=' + BROWSER_PATH,
             "--browser-args='%s'" % BROWSER_ARGS,
