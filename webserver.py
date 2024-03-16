@@ -24,6 +24,7 @@ def singlefile():
         return Response('Error: url parameter not found.',
                         status=500)
     singlefile_html = p.stdout.read()
+    p.terminate()
     return Response(
         singlefile_html,
         mimetype="text/html",
