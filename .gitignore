@@ -1,2 +1,4 @@
 /pyenv/
 /.idea/
+/.local/
+.replit
