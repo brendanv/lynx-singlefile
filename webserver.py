@@ -1,5 +1,6 @@
 import subprocess
 from flask import Flask, request, Response
+import json
 
 server = Flask(__name__)
 
@@ -11,15 +12,23 @@ BROWSER_ARGS = '["--no-sandbox"]'
 @server.route('/', methods=['POST'])
 def singlefile():
     url = request.form.get('url')
+    cookies = request.form.get('cookies')
+    parsed_cookies = json.loads(cookies) if cookies else []
     if url:
-        p = subprocess.Popen([
+        args = [
             "node",
             SINGLEFILE_EXECUTABLE,
             '--browser-executable-path=' + BROWSER_PATH,
             "--browser-args='%s'" % BROWSER_ARGS,
             request.form['url'],
             '--dump-content',
-            ],
+        ]
+        if parsed_cookies:
+            for parsed_cookie in parsed_cookies:
+              args.extend(['--browser-cookie', parsed_cookie])
+  
+        p = subprocess.Popen(
+            args,
             stdout=subprocess.PIPE)
     else:
         return Response('Error: url parameter not found.',
