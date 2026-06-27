@@ -29,7 +29,9 @@ def singlefile():
         return Response('Error: url parameter not found.', status=500)
 
     cookies = request.form.get('cookies')
-    parsed_cookies = json.loads(cookies) if cookies else []
+    parsed_cookies = json.loads(cookies) if cookies else None
+    if not isinstance(parsed_cookies, list):
+        parsed_cookies = []
 
     server.logger.info('Archiving %s (cookies: %d)', url, len(parsed_cookies))
 
