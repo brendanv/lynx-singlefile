@@ -1,3 +1,4 @@
+import logging
 import os
 import signal
 import subprocess
@@ -5,6 +6,7 @@ from flask import Flask, request, Response
 import json
 
 server = Flask(__name__)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
 SINGLEFILE_EXECUTABLE = './single-file'
 BROWSER_PATH = '/usr/bin/chromium-browser'
@@ -23,10 +25,13 @@ def health():
 def singlefile():
     url = request.form.get('url')
     if not url:
+        server.logger.warning('Request missing url parameter')
         return Response('Error: url parameter not found.', status=500)
 
     cookies = request.form.get('cookies')
     parsed_cookies = json.loads(cookies) if cookies else []
+
+    server.logger.info('Archiving %s (cookies: %d)', url, len(parsed_cookies))
 
     args = [
         "node",
@@ -53,6 +58,7 @@ def singlefile():
     except subprocess.TimeoutExpired:
         os.killpg(os.getpgid(p.pid), signal.SIGKILL)
         p.communicate()
+        server.logger.error('Timed out archiving %s after %ds', url, REQUEST_TIMEOUT_SECONDS)
         return Response(
             'Error: timed out generating archive for %s' % url, status=504)
 
@@ -62,6 +68,7 @@ def singlefile():
             url, p.returncode, stderr.decode(errors='replace'))
         return Response('Error: single-file process failed.', status=500)
 
+    server.logger.info('Archived %s (%d bytes)', url, len(singlefile_html))
     return Response(singlefile_html, mimetype="text/html")
 
 
