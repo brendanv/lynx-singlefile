@@ -39,7 +39,7 @@ def singlefile():
         "node",
         SINGLEFILE_EXECUTABLE,
         '--browser-executable-path=' + BROWSER_PATH,
-        "--browser-args='%s'" % BROWSER_ARGS,
+        '--browser-args=%s' % BROWSER_ARGS,
         url,
         '--dump-content',
     ]
