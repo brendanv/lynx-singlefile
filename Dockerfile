@@ -20,6 +20,9 @@ COPY webserver.py .
 
 EXPOSE 80
 
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD python3 -c "import sys,urllib.request; sys.exit(0 if urllib.request.urlopen('http://localhost:80/health', timeout=3).status == 200 else 1)"
+
 ENTRYPOINT [ \
     "node", \
     "./single-file", \

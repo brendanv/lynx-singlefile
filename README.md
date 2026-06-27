@@ -15,11 +15,14 @@ services:
   singlefile:
     container_name: singlefile
     image: ghcr.io/brendanv/lynx-singlefile
-    entrypoint: python3
-    command: webserver.py
+    entrypoint: gunicorn
+    command: ["--bind", "0.0.0.0:80", "--workers", "2", "--timeout", "110", "webserver:server"]
+    restart: unless-stopped
     expose:
       - 80
 ```
+
+Each archive request launches a headless Chromium instance, so this container can wedge if a page hangs Chromium indefinitely. The webserver enforces an internal timeout (default 90s, configurable via the `SINGLEFILE_TIMEOUT_SECONDS` env var) that kills the underlying process tree and returns an error instead of hanging forever. Running behind `gunicorn` (rather than Flask's dev server) adds worker-level timeouts and request concurrency on top of that. A `GET /health` endpoint is also available for use with Docker healthchecks (one is already baked into the image) combined with `restart: unless-stopped` so the container recovers automatically if it ever does get stuck.
 
 Then any HTTP POST on port 80 with url parameter will respond with the HTML output of SingleFile in the payload:
 
