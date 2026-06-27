@@ -15,8 +15,6 @@ services:
   singlefile:
     container_name: singlefile
     image: ghcr.io/brendanv/lynx-singlefile
-    entrypoint: gunicorn
-    command: ["--bind", "0.0.0.0:80", "--workers", "2", "--timeout", "110", "webserver:server"]
     restart: unless-stopped
     expose:
       - 80
