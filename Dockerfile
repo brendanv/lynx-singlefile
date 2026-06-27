@@ -8,10 +8,9 @@ RUN npm install --production single-file-cli
 WORKDIR /usr/src/app/node_modules/single-file-cli
 
 COPY requirements.txt .
-RUN pip install \ 
-  --no-cache-dir \ 
+RUN pip install \
+  --no-cache-dir \
   --no-warn-script-location \
-  --user \
   --break-system-packages \
   -r requirements.txt \
   && rm requirements.txt
