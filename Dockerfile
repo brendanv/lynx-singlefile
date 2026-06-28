@@ -3,7 +3,7 @@ FROM zenika/alpine-chrome:with-node
 USER root
 RUN apk add --no-cache python3 py3-pip
 
-RUN npm install --production single-file-cli
+RUN npm install --production single-file-cli@2.0.75
 
 WORKDIR /usr/src/app/node_modules/single-file-cli
 

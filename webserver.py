@@ -25,6 +25,7 @@ def singlefile():
             SINGLEFILE_EXECUTABLE,
             '--browser-executable-path=' + BROWSER_PATH,
             "--browser-args='%s'" % BROWSER_ARGS,
+            '--browser-wait-until=loaded',
             request.form['url'],
             '--dump-content',
         ]
