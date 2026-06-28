@@ -1,6 +1,10 @@
 import subprocess
+import logging
 from flask import Flask, request, Response
 import json
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s', force=True)
+logger = logging.getLogger(__name__)
 
 server = Flask(__name__)
 
@@ -13,8 +17,9 @@ BROWSER_ARGS = '["--no-sandbox"]'
 def singlefile():
     url = request.form.get('url')
     cookies = request.form.get('cookies')
-    parsed_cookies = json.loads(cookies) if cookies else []
+    parsed_cookies = (json.loads(cookies) if cookies else None) or []
     if url:
+        logger.info('Received request for URL: %s (cookies: %d)', url, len(parsed_cookies))
         args = [
             "node",
             SINGLEFILE_EXECUTABLE,
@@ -26,15 +31,18 @@ def singlefile():
         if parsed_cookies:
             for parsed_cookie in parsed_cookies:
               args.extend(['--browser-cookie', parsed_cookie])
-  
+
+        logger.info('Spawning single-file process')
         p = subprocess.Popen(
             args,
             stdout=subprocess.PIPE)
     else:
+        logger.warning('Request received with no URL parameter')
         return Response('Error: url parameter not found.',
                         status=500)
     singlefile_html = p.stdout.read()
     p.terminate()
+    logger.info('Finished processing %s (%d bytes)', url, len(singlefile_html))
     return Response(
         singlefile_html,
         mimetype="text/html",

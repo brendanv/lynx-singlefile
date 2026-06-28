@@ -20,10 +20,4 @@ COPY webserver.py .
 
 EXPOSE 80
 
-ENTRYPOINT [ \
-    "node", \
-    "./single-file", \
-    "--browser-executable-path", "/usr/bin/chromium-browser", \
-    "--output-directory", "./../../out/", \
-    "--browser-args", "[\"--no-sandbox\"]", \
-    "--dump-content" ]
+ENTRYPOINT ["python3", "webserver.py"]
